@@ -2,6 +2,7 @@ import { Users } from "../models";
 import bcrypt from "bcrypt";
 import { object, string, number, date, InferType } from "yup";
 import jwt from "jsonwebtoken";
+import awsS3 from "../libs/awsS3";
 
 export class UserController {
   async post(req, res) {
@@ -38,6 +39,59 @@ export class UserController {
       result.dataValues.password = "";
 
       return res.status(201).json(result.dataValues);
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  }
+
+  async avatar(req, res) {
+    try {
+      const schema = object({
+        base64: string().required(),
+        mime: string().required(),
+      });
+
+      await schema.validate(req.body);
+    } catch (error) {
+      return res.status(400).json({ error: error?.message });
+    }
+
+    try {
+      const userFound = await Users.findByPk(req.userId);
+      if (!userFound) {
+        return res.status(404).json({ error: "User Not Found" });
+      }
+
+      if (userFound.avatar_url) {
+        const splitted = userFound.avatar_url.split("/");
+        const oldKey = splitted[splitted.length - 1];
+        const deleteResult = await UploadImage.delete(oldKey);
+
+        if (deleteResult.error) {
+          throw new Error(deleteResult);
+        }
+      }
+
+      const key = `user_${userFound.id}_${new Date().getTime()}`;
+      const uploadResult = await awsS3.upload(
+        key,
+        req.body.base64,
+        req.body.mime
+      );
+      if (uploadResult?.error) {
+        return res.status(400).json({ error: "Image not uploaded" });
+      }
+
+      userFound.avatar_url = uploadResult?.Location;
+
+      const result = await userFound.save();
+      if (!result) {
+        res.status(400).json({ error: "User not updated" });
+      }
+
+      result.password = "";
+
+      return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json(error);
     }

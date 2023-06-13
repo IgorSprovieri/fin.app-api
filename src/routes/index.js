@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { userController } from "../controllers";
+import { authMiddleware } from "../middlewares";
 const router = new Router();
 
 router.get("/", (req, res) => {
@@ -9,5 +10,10 @@ router.get("/", (req, res) => {
 });
 
 router.post("/user", userController.post);
+
+//------------------------------- Auth Routes ----------------------------
+router.use(authMiddleware.validateJWT);
+
+router.put("/user/avatar", userController.avatar);
 
 export default router;
