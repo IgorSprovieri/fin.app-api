@@ -1,6 +1,7 @@
 import { Users } from "../models";
 import bcrypt from "bcrypt";
 import { object, string, number, date, InferType } from "yup";
+import jwt from "jsonwebtoken";
 
 export class UserController {
   async post(req, res) {
@@ -29,8 +30,14 @@ export class UserController {
         return res.status(400).json({ error: "User not created" });
       }
 
-      result.password = "";
-      return res.status(201).json(result);
+      const payload = { id: result.id };
+      const secret = process.env.JWT_SECRET || "fin.app";
+      const options = { expiresIn: "7d" };
+
+      result.dataValues.token = jwt.sign(payload, secret, options);
+      result.dataValues.password = "";
+
+      return res.status(201).json(result.dataValues);
     } catch (error) {
       return res.status(500).json(error);
     }
