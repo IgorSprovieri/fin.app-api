@@ -152,4 +152,53 @@ export class UserController {
       return res.status(500).json(error);
     }
   }
+
+  async put(req, res) {
+    const { userId } = req;
+    const { body } = req;
+    const { name, email, password } = body;
+
+    try {
+      const schema = object({
+        name: string(),
+        email: string().email(),
+        password: string(),
+      });
+
+      await schema.validate(body);
+    } catch (error) {
+      return res.status(400).json({ error: error?.message });
+    }
+
+    try {
+      const userFound = await Users.findOne({ where: { id: userId } });
+      if (!userFound) {
+        return res.status(404).json({ error: "User Not Found" });
+      }
+
+      for (const key in body) {
+        if (body[key] !== "") {
+          userFound[key] = body[key];
+        }
+      }
+
+      if (email) {
+        const foundNewEmail = await Users.findOne({ where: { email: email } });
+        if (foundNewEmail) {
+          return res.status(403).json({ error: "Email Already Exists" });
+        }
+      }
+
+      const updatedUser = await userFound.save();
+      if (!updatedUser) {
+        res.status(400).json({ error: "User Not Updated" });
+      }
+
+      updatedUser.password = "";
+
+      return res.status(200).json(updatedUser.dataValues);
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  }
 }

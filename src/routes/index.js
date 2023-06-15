@@ -15,6 +15,7 @@ router.post("/login", userController.login);
 //------------------------------- Auth Routes ----------------------------
 router.use(authMiddleware.validateJWT);
 
+router.put("/user", userController.put);
 router.put("/user/avatar", userController.avatar);
 router.get("/user", userController.get);
 
