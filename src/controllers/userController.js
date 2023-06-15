@@ -19,8 +19,10 @@ export class UserController {
     }
 
     try {
-      const found = await Users.findOne({ where: { email: req.body.email } });
-      if (found) {
+      const userFound = await Users.findOne({
+        where: { email: req.body.email },
+      });
+      if (userFound) {
         return res.status(400).json({ error: "User already exists" });
       }
 
@@ -92,6 +94,44 @@ export class UserController {
       result.password = "";
 
       return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  }
+
+  async login(req, res) {
+    try {
+      const schema = object({
+        email: string().email().required(),
+        password: string().required(),
+      });
+
+      await schema.validate(req.body);
+    } catch (error) {
+      return res.status(400).json({ error: error?.message });
+    }
+
+    try {
+      const userFound = await Users.findOne({
+        where: { email: req.body.email },
+      });
+      if (!userFound) {
+        return res.status(401).json({ error: "User or password is invalid" });
+      }
+
+      const match = await bcrypt.compare(req.body.password, userFound.password);
+      if (!match) {
+        return res.status(401).json({ error: "User or password is invalid" });
+      }
+
+      const payload = { id: userFound.id };
+      const secret = process.env.JWT_SECRET || "fin.app";
+      const options = { expiresIn: "7d" };
+
+      userFound.dataValues.token = jwt.sign(payload, secret, options);
+      userFound.dataValues.password = "";
+
+      return res.status(200).json(userFound.dataValues);
     } catch (error) {
       return res.status(500).json(error);
     }

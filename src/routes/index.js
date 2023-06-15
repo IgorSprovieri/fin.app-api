@@ -10,6 +10,7 @@ router.get("/", (req, res) => {
 });
 
 router.post("/user", userController.post);
+router.post("/login", userController.login);
 
 //------------------------------- Auth Routes ----------------------------
 router.use(authMiddleware.validateJWT);
