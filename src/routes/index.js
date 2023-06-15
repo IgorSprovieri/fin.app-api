@@ -16,5 +16,6 @@ router.post("/login", userController.login);
 router.use(authMiddleware.validateJWT);
 
 router.put("/user/avatar", userController.avatar);
+router.get("/user", userController.get);
 
 export default router;
