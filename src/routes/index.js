@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { iconController, userController } from "../controllers";
+import {
+  colorController,
+  iconController,
+  userController,
+} from "../controllers";
 import { authMiddleware } from "../middlewares";
 const router = new Router();
 
@@ -14,6 +18,7 @@ router.post("/login", userController.login);
 router.post("/forgot-password", userController.forgotPassword);
 
 router.get("/icons", iconController.getAll);
+router.get("/colors", colorController.getAll);
 
 //------------------------------- Auth Routes ----------------------------
 router.use(authMiddleware.validateJWT);
