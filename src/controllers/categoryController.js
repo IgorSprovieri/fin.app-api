@@ -45,6 +45,26 @@ export class CategoryController {
     }
   }
 
+  async getAll(req, res) {
+    const { userId } = req;
+
+    try {
+      const categoriesFound = await Categories.findAll({
+        where: {
+          user_id: userId,
+        },
+        include: [
+          { model: Colors, as: "color" },
+          { model: Icons, as: "icon" },
+        ],
+      });
+
+      return res.status(200).json(categoriesFound);
+    } catch (error) {
+      return res.status(500).json({ error: error?.message });
+    }
+  }
+
   async put(req, res) {
     const { body, params, userId } = req;
     const { id } = params;

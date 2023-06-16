@@ -11,24 +11,21 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
-        references: {
-          model: "Users",
-          key: "id",
-        },
+        references: { model: "Users", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       icon_id: {
         type: Sequelize.INTEGER,
-        references: {
-          model: "Icons",
-          key: "id",
-        },
+        references: { model: "Icons", key: "id" },
+        onUpdate: "SET NULL",
+        onDelete: "SET NULL",
       },
       color_id: {
         type: Sequelize.INTEGER,
-        references: {
-          model: "Colors",
-          key: "id",
-        },
+        references: { model: "Colors", key: "id" },
+        onUpdate: "SET NULL",
+        onDelete: "SET NULL",
       },
       category: {
         type: Sequelize.STRING,

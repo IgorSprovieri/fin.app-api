@@ -29,6 +29,7 @@ router.put("/user/avatar", userController.avatar);
 router.get("/user", userController.get);
 
 router.post("/category", categoryController.post);
+router.get("/categories", categoryController.getAll);
 router.put("/category/:id", categoryController.put);
 
 export default router;
