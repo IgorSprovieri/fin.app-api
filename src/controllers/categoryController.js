@@ -39,14 +39,64 @@ export class CategoryController {
         ...body,
       });
 
-      const response = {
-        id: categoryCreated.dataValues.id,
-        iconUrl: "http://localhost:3333/" + iconFound.dataValues.icon_url,
-        hexColor: colorFound.dataValues.hexColor,
-        category: categoryCreated.dataValues.category,
-      };
+      return res.status(201).json(categoryCreated);
+    } catch (error) {
+      return res.status(500).json({ error: error?.message });
+    }
+  }
 
-      return res.status(201).json(response);
+  async put(req, res) {
+    const { body, params, userId } = req;
+    const { id } = params;
+    const { icon_id, color_id } = body;
+
+    try {
+      const schema = object({
+        icon_id: number().integer(),
+        color_id: number().integer(),
+        category: string(),
+      });
+
+      await schema.validate(body);
+    } catch (error) {
+      return res.status(400).json({ error: error?.message });
+    }
+
+    try {
+      const userFound = await Users.findOne({ id: userId });
+      if (!userFound) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const categoryFound = await Categories.findOne({ id: id });
+      if (!categoryFound) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      if (icon_id) {
+        const iconFound = await Icons.findOne({ id: icon_id });
+        if (!iconFound) {
+          return res.status(404).json({ error: "Icon not found" });
+        }
+      }
+
+      if (color_id) {
+        const colorFound = await Colors.findOne({ id: color_id });
+        if (!colorFound) {
+          return res.status(404).json({ error: "Color not found" });
+        }
+      }
+
+      const categoryUpdated = await categoryFound.update(
+        { ...body },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+
+      return res.status(200).json(categoryUpdated);
     } catch (error) {
       return res.status(500).json({ error: error?.message });
     }

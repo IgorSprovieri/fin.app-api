@@ -176,16 +176,16 @@ export class UserController {
         return res.status(404).json({ error: "User Not Found" });
       }
 
-      for (const key in body) {
-        if (body[key] !== "") {
-          userFound[key] = body[key];
-        }
-      }
-
       if (email) {
         const foundNewEmail = await Users.findOne({ where: { email: email } });
         if (foundNewEmail) {
           return res.status(403).json({ error: "Email Already Exists" });
+        }
+      }
+
+      for (const key in body) {
+        if (body[key] !== "") {
+          userFound[key] = body[key];
         }
       }
 
