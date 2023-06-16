@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  categoryController,
   colorController,
   iconController,
   userController,
@@ -26,5 +27,7 @@ router.use(authMiddleware.validateJWT);
 router.put("/user", userController.put);
 router.put("/user/avatar", userController.avatar);
 router.get("/user", userController.get);
+
+router.post("/category", categoryController.post);
 
 export default router;
