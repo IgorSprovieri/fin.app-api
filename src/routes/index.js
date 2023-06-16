@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userController } from "../controllers";
+import { iconController, userController } from "../controllers";
 import { authMiddleware } from "../middlewares";
 const router = new Router();
 
@@ -12,6 +12,8 @@ router.get("/", (req, res) => {
 router.post("/user", userController.post);
 router.post("/login", userController.login);
 router.post("/forgot-password", userController.forgotPassword);
+
+router.get("/icons", iconController.getAll);
 
 //------------------------------- Auth Routes ----------------------------
 router.use(authMiddleware.validateJWT);
