@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { object, string, number, date, InferType } from "yup";
 import jwt from "jsonwebtoken";
 import awsS3 from "../libs/awsS3";
+import { forgotPasswordEmail } from "../libs/mailjet";
 
 export class UserController {
   async post(req, res) {
@@ -67,11 +68,10 @@ export class UserController {
       if (!userFound) {
         return res.status(404).json({ error: "User Not Found" });
       }
-
       if (userFound.avatar_url) {
         const splitted = userFound.avatar_url.split("/");
         const oldKey = splitted[splitted.length - 1];
-        const deleteResult = await UploadImage.delete(oldKey);
+        const deleteResult = await awsS3.delete(oldKey);
 
         if (deleteResult.error) {
           throw new Error(deleteResult);
@@ -156,7 +156,7 @@ export class UserController {
   async put(req, res) {
     const { userId } = req;
     const { body } = req;
-    const { name, email, password } = body;
+    const { email } = body;
 
     try {
       const schema = object({
@@ -199,6 +199,38 @@ export class UserController {
       return res.status(200).json(updatedUser.dataValues);
     } catch (error) {
       return res.status(500).json(error);
+    }
+  }
+
+  async forgotPassword(req, res) {
+    const { body } = req;
+    const { email } = body;
+
+    try {
+      const schema = object({
+        email: string().email().required(),
+      });
+
+      await schema.validate(body);
+    } catch (error) {
+      return res.status(400).json({ error: error?.message });
+    }
+
+    try {
+      const userFound = await Users.findOne({ where: { email: email } });
+      if (!userFound) {
+        return res.status(404).json({ error: "User Not Found" });
+      }
+
+      const { name } = userFound;
+      const token = Math.round(Math.random() * 1000000);
+
+      const sendEmailResult = await forgotPasswordEmail(name, email, token);
+      console.log(sendEmailResult);
+
+      return res.status(200).json(sendEmailResult);
+    } catch (error) {
+      return res.status(500).json({ error: error?.message });
     }
   }
 }

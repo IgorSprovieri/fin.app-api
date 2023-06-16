@@ -11,6 +11,7 @@ router.get("/", (req, res) => {
 
 router.post("/user", userController.post);
 router.post("/login", userController.login);
+router.post("/forgot-password", userController.forgotPassword);
 
 //------------------------------- Auth Routes ----------------------------
 router.use(authMiddleware.validateJWT);
