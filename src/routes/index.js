@@ -31,5 +31,6 @@ router.get("/user", userController.get);
 router.post("/category", categoryController.post);
 router.get("/categories", categoryController.getAll);
 router.put("/category/:id", categoryController.put);
+router.delete("/category/:id", categoryController.delete);
 
 export default router;

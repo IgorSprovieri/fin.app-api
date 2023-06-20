@@ -121,4 +121,31 @@ export class CategoryController {
       return res.status(500).json({ error: error?.message });
     }
   }
+
+  async delete(req, res) {
+    const { params, userId } = req;
+    const { id } = params;
+
+    try {
+      const userFound = await Users.findOne({ id: userId });
+      if (!userFound) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const categoryFound = await Categories.findOne({ id: id });
+      if (!categoryFound) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      const categoryDeleted = await categoryFound.destroy({
+        where: {
+          id: id,
+        },
+      });
+
+      return res.status(200).json(categoryDeleted);
+    } catch (error) {
+      return res.status(500).json({ error: error?.message });
+    }
+  }
 }
