@@ -4,20 +4,18 @@ class EmailProvider {
   #apiKey;
   #secretKey;
   #senderAddress;
-  #Mailjet;
 
-  constructor(Mailjet) {
+  constructor() {
     const { MAILJET_API_KEY, MAILJET_SECRET_KEY, MAILJET_SENDER_ADDRESS } =
       process.env;
 
     this.#apiKey = MAILJET_API_KEY;
     this.#secretKey = MAILJET_SECRET_KEY;
     this.#senderAddress = MAILJET_SENDER_ADDRESS;
-    this.#Mailjet = Mailjet;
   }
 
   async sendEmail(name, email, subject, TextPart, HTMLpart) {
-    const mailjet = this.#Mailjet.apiConnect(this.#apiKey, this.#secretKey);
+    const mailjet = Mailjet.apiConnect(this.#apiKey, this.#secretKey);
 
     return await mailjet.post("send", { version: "v3.1" }).request({
       Messages: [
@@ -41,7 +39,7 @@ class EmailProvider {
   }
 }
 
-const emailProvider = new EmailProvider(Mailjet);
+const emailProvider = new EmailProvider();
 
 export const forgotPasswordEmail = async (name, email, token) => {
   try {
@@ -57,7 +55,7 @@ export const forgotPasswordEmail = async (name, email, token) => {
      <h4>Equipe Fin.app,</h4>
     `;
 
-    const result = emailProvider.sendEmail(
+    const result = await emailProvider.sendEmail(
       name,
       email,
       subject,

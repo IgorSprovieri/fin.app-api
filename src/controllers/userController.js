@@ -226,7 +226,6 @@ export class UserController {
       const token = Math.round(Math.random() * 1000000);
 
       const sendEmailResult = await forgotPasswordEmail(name, email, token);
-      console.log(sendEmailResult);
 
       return res.status(200).json(sendEmailResult);
     } catch (error) {

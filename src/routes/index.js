@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   categoryController,
   colorController,
+  financeController,
   iconController,
   userController,
 } from "../controllers";
@@ -32,5 +33,7 @@ router.post("/category", categoryController.post);
 router.get("/categories", categoryController.getAll);
 router.put("/category/:id", categoryController.put);
 router.delete("/category/:id", categoryController.delete);
+
+router.post("/finance", financeController.post);
 
 export default router;
